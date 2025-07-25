@@ -1,0 +1,85 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String
+  credits   FoodCredit?
+  orders    Order[]
+  creditHistory FoodCreditHistory[]
+  createdAt DateTime @default(now())
+}
+
+model Admin {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String
+  creditActions FoodCreditHistory[] @relation("AdminCreditActions")
+  createdAt DateTime @default(now())
+}
+
+model FoodItem {
+  id          String   @id @default(uuid())
+  name        String
+  price       Float
+  imagePath   String
+  description String?
+  orderItems  OrderItem[]
+  createdAt   DateTime @default(now())
+}
+
+model Order {
+  id                String      @id @default(uuid())
+  user              User        @relation(fields: [userId], references: [id])
+  userId            String
+  status            String
+  arrivalTime       DateTime
+  estimatedReadyTime DateTime
+  readyNotified     Boolean     @default(false)
+  orderItems        OrderItem[]
+  createdAt         DateTime    @default(now())
+}
+
+model OrderItem {
+  id         String    @id @default(uuid())
+  order      Order     @relation(fields: [orderId], references: [id])
+  orderId    String
+  foodItem   FoodItem  @relation(fields: [foodItemId], references: [id])
+  foodItemId String
+  quantity   Int
+  customizations String?
+}
+
+model FoodCredit {
+  id      String  @id @default(uuid())
+  user    User    @relation(fields: [userId], references: [id])
+  userId  String  @unique
+  balance Int     @default(0)
+}
+
+model FoodCreditHistory {
+  id        String   @id @default(uuid())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  amount    Int
+  reason    String?
+  admin     Admin?   @relation("AdminCreditActions", fields: [adminId], references: [id])
+  adminId   String?
+  createdAt DateTime @default(now())
+}
