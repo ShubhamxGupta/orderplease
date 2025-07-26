@@ -141,7 +141,7 @@ export default function AdminCredits() {
                 setError(data.message || "Failed to assign credits");
                 loadUsers();
             }
-        } catch (err) {
+        } catch {
             setError("Network error. Please try again.");
             loadUsers();
         } finally {
@@ -192,7 +192,7 @@ export default function AdminCredits() {
                 setError(data.message || "Failed to update credits");
                 loadUsers();
             }
-        } catch (err) {
+        } catch {
             setError("Network error. Please try again.");
             loadUsers();
         } finally {
@@ -218,7 +218,7 @@ export default function AdminCredits() {
             } else {
                 loadUsers();
             }
-        } catch (error) {
+        } catch {
             loadUsers();
         }
     };

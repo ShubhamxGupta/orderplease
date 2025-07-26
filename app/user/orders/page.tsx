@@ -240,8 +240,8 @@ export default function UserOrders() {
                                     No Orders Yet
                                 </h3>
                                 <p className="text-gray-600 mb-6">
-                                    You haven't placed any orders yet. Start by
-                                    browsing our menu!
+                                    You haven&apos;t placed any orders yet.
+                                    Start by browsing our menu!
                                 </p>
                                 <Button
                                     onClick={() => router.push("/user/order")}

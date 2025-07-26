@@ -93,7 +93,7 @@ export default function UserProfile() {
             } else {
                 setError(data.message || "Failed to change password");
             }
-        } catch (err) {
+        } catch {
             setError("Network error. Please try again.");
         } finally {
             setUpdating(false);

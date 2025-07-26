@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useMemo } from "react";
 import type React from "react";
 
 import { useRouter } from "next/navigation";
@@ -84,7 +84,7 @@ export default function AdminMenu() {
         isLoading,
         mutate,
     } = useSWR("/api/admin/menu", fetcher, { revalidateOnFocus: false });
-    const menu: FoodItem[] = data?.menu || [];
+    const menu: FoodItem[] = useMemo(() => data?.menu || [], [data?.menu]);
 
     useEffect(() => {
         fetch("/api/auth/session")
@@ -165,7 +165,7 @@ export default function AdminMenu() {
             } else {
                 setError(data.message || "Failed to add item");
             }
-        } catch (err) {
+        } catch {
             setError("Network error. Please try again.");
         } finally {
             setSubmitting(false);
@@ -184,7 +184,7 @@ export default function AdminMenu() {
                 mutate();
                 setMessage("Item deleted successfully!");
             }
-        } catch (error) {
+        } catch {
             setError("Failed to delete item");
         }
     };
@@ -214,7 +214,7 @@ export default function AdminMenu() {
                 mutate();
                 setMessage("Item updated successfully!");
             }
-        } catch (error) {
+        } catch {
             setError("Failed to update item");
         }
     };
@@ -230,7 +230,7 @@ export default function AdminMenu() {
             if (res.ok) {
                 mutate();
             }
-        } catch (error) {
+        } catch {
             setError("Failed to update availability");
         }
     };

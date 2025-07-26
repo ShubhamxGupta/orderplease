@@ -16,7 +16,6 @@ import {
     ShoppingCart,
     CreditCard,
     LogOut,
-    ArrowLeft,
     Users,
     TrendingUp,
 } from "lucide-react";

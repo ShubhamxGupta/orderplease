@@ -18,7 +18,6 @@ import {
     History,
     LogOut,
     Bell,
-    ArrowLeft,
     Wallet,
 } from "lucide-react";
 

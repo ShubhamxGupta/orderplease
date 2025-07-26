@@ -118,7 +118,7 @@ export default function UserOrder() {
             } else {
                 setError(data.message || "Order failed");
             }
-        } catch (err) {
+        } catch {
             setError("Network error. Please try again.");
         } finally {
             setSubmitting(false);
@@ -215,7 +215,7 @@ export default function UserOrder() {
                             <Card className="border-0 shadow-lg">
                                 <CardHeader>
                                     <CardTitle className="text-xl text-gray-900">
-                                        Today's Menu
+                                        Today&apos;s Menu
                                     </CardTitle>
                                     <CardDescription>
                                         Fresh food prepared daily

@@ -53,21 +53,6 @@ interface Order {
     orderItems: OrderItem[];
 }
 
-const getStatusIcon = (status: string) => {
-    switch (status.toLowerCase()) {
-        case "pending":
-            return <Clock className="w-4 h-4" />;
-        case "preparing":
-            return <Package className="w-4 h-4" />;
-        case "ready":
-            return <CheckCircle className="w-4 h-4" />;
-        case "completed":
-            return <CheckCircle className="w-4 h-4" />;
-        default:
-            return <AlertCircle className="w-4 h-4" />;
-    }
-};
-
 const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
         case "pending":
