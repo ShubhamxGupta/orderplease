@@ -22,7 +22,7 @@ export default function AdminCredits() {
     const handleCreditChange = async (
         userId: string,
         amount: number,
-        adminId: string,
+        _adminId: string,
         reason: string
     ) => {
         setMessage("");
@@ -32,7 +32,7 @@ export default function AdminCredits() {
             body: JSON.stringify({
                 userId,
                 amount,
-                adminId,
+                _adminId,
                 reason,
             }),
         });
@@ -46,7 +46,7 @@ export default function AdminCredits() {
         }
     };
 
-    const handleMassAssign = async (adminId: string) => {
+    const handleMassAssign = async (_adminId: string) => {
         setMessage("");
         if (!massAmount) return;
         const res = await fetch("/api/admin/credits", {
@@ -54,7 +54,7 @@ export default function AdminCredits() {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
                 amount: Number(massAmount),
-                adminId,
+                _adminId,
                 reason: massReason,
             }),
         });
@@ -71,9 +71,9 @@ export default function AdminCredits() {
     };
 
     // For demo, use the first admin as the acting admin
-    const adminId =
+    const _adminId =
         typeof window !== "undefined"
-            ? window.localStorage.getItem("adminId") || "admin"
+            ? window.localStorage.getItem("_adminId") || "admin"
             : "admin";
 
     return (
@@ -110,7 +110,7 @@ export default function AdminCredits() {
                                 className="border p-2 rounded mr-2"
                             />
                             <button
-                                onClick={() => handleMassAssign(adminId)}
+                                onClick={() => handleMassAssign(_adminId)}
                                 className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">
                                 Mass Assign
                             </button>
@@ -142,7 +142,7 @@ export default function AdminCredits() {
                                             <td className="p-2 border">
                                                 <EditCredit
                                                     user={user}
-                                                    adminId={adminId}
+                                                    _adminId={_adminId}
                                                     onSave={handleCreditChange}
                                                 />
                                             </td>
@@ -168,15 +168,15 @@ export default function AdminCredits() {
 
 function EditCredit({
     user,
-    adminId,
+    _adminId,
     onSave,
 }: {
     user: User;
-    adminId: string;
+    _adminId: string;
     onSave: (
         userId: string,
         amount: number,
-        adminId: string,
+        _adminId: string,
         reason: string
     ) => void;
 }) {
@@ -201,7 +201,7 @@ function EditCredit({
             <button
                 className="bg-green-600 text-white px-2 py-1 rounded"
                 onClick={() => {
-                    onSave(user.id, amount, adminId, reason);
+                    onSave(user.id, amount, _adminId, reason);
                     setEditing(false);
                 }}>
                 Save

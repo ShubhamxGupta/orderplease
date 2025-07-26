@@ -175,7 +175,7 @@ function EditableMenuItem({
     const [price, setPrice] = useState(item.price);
     const [description, setDescription] = useState(item.description || "");
     const [image, setImage] = useState<File | null>(null);
-    const [imagePath, setImagePath] = useState(item.imagePath);
+    const [imagePath] = useState(item.imagePath);
 
     const handleSave = () => {
         onEdit(item.id, { name, price, description, image, imagePath });

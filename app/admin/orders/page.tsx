@@ -114,7 +114,7 @@ export default function AdminOrders() {
                                         Items:
                                     </span>
                                     <ul className="list-disc ml-6">
-                                        {order.orderItems.map((item: any) => (
+                                        {order.orderItems.map((item) => (
                                             <li key={item.id}>
                                                 {item.foodItem.name} x{" "}
                                                 {item.quantity}
