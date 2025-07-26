@@ -14,6 +14,10 @@ export default function AdminMenu() {
     const [error, setError] = useState("");
     const fileInput = useRef<HTMLInputElement>(null);
     const router = useRouter();
+    type UpdatedItem = Partial<FoodItem> & {
+        image?: File | null;
+        imagePath?: string;
+    };
 
     useEffect(() => {
         fetch("/api/auth/session")
@@ -69,11 +73,11 @@ export default function AdminMenu() {
         if (res.ok) setMenu((m) => m.filter((item) => item.id !== id));
     };
 
-    const handleEdit = async (id: string, updated: any) => {
+    const handleEdit = async (id: string, updated: UpdatedItem) => {
         const formData = new FormData();
         formData.append("id", id);
-        formData.append("name", updated.name);
-        formData.append("price", updated.price);
+        formData.append("name", updated.name || "");
+        formData.append("price", updated.price?.toString() || "");
         formData.append("description", updated.description || "");
         if (updated.image) formData.append("image", updated.image);
         else formData.append("imagePath", updated.imagePath || "");
