@@ -1,9 +1,10 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { User, FoodCreditHistory } from "../../types/models";
 
 export default function AdminCredits() {
-    const [users, setUsers] = useState<any[]>([]);
+    const [users, setUsers] = useState<User[]>([]);
     const [loading, setLoading] = useState(true);
     const [massAmount, setMassAmount] = useState("");
     const [massReason, setMassReason] = useState("");
@@ -20,7 +21,7 @@ export default function AdminCredits() {
 
     const handleCreditChange = async (
         userId: string,
-        amount: string,
+        amount: number,
         adminId: string,
         reason: string
     ) => {
@@ -30,7 +31,7 @@ export default function AdminCredits() {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
                 userId,
-                amount: Number(amount),
+                amount,
                 adminId,
                 reason,
             }),
@@ -165,7 +166,20 @@ export default function AdminCredits() {
     );
 }
 
-function EditCredit({ user, adminId, onSave }: any) {
+function EditCredit({
+    user,
+    adminId,
+    onSave,
+}: {
+    user: User;
+    adminId: string;
+    onSave: (
+        userId: string,
+        amount: number,
+        adminId: string,
+        reason: string
+    ) => void;
+}) {
     const [editing, setEditing] = useState(false);
     const [amount, setAmount] = useState(user.credits?.balance ?? 0);
     const [reason, setReason] = useState("");
@@ -207,12 +221,12 @@ function EditCredit({ user, adminId, onSave }: any) {
     );
 }
 
-function CreditHistory({ history }: any) {
+function CreditHistory({ history }: { history?: FoodCreditHistory[] }) {
     if (!history || history.length === 0)
         return <span className="text-gray-400">No history</span>;
     return (
         <ul className="text-xs max-h-24 overflow-y-auto">
-            {history.map((h: any, i: number) => (
+            {history.map((h: FoodCreditHistory, i: number) => (
                 <li key={i}>
                     {h.amount} ({h.reason || "-"}){" "}
                     {new Date(h.createdAt).toLocaleString()}

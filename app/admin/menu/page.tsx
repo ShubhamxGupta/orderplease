@@ -1,10 +1,11 @@
 "use client";
 import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
+import { FoodItem } from "../../types/models";
 
 export default function AdminMenu() {
     const [adminId, setAdminId] = useState("");
-    const [menu, setMenu] = useState<any[]>([]);
+    const [menu, setMenu] = useState<FoodItem[]>([]);
     const [name, setName] = useState("");
     const [price, setPrice] = useState("");
     const [description, setDescription] = useState("");
@@ -157,7 +158,18 @@ export default function AdminMenu() {
     );
 }
 
-function EditableMenuItem({ item, onEdit, onDelete }: any) {
+function EditableMenuItem({
+    item,
+    onEdit,
+    onDelete,
+}: {
+    item: FoodItem;
+    onEdit: (
+        id: string,
+        updated: Partial<FoodItem> & { image?: File | null; imagePath?: string }
+    ) => void;
+    onDelete: (id: string) => void;
+}) {
     const [editing, setEditing] = useState(false);
     const [name, setName] = useState(item.name);
     const [price, setPrice] = useState(item.price);
@@ -189,7 +201,7 @@ function EditableMenuItem({ item, onEdit, onDelete }: any) {
                         <input
                             type="number"
                             value={price}
-                            onChange={(e) => setPrice(e.target.value)}
+                            onChange={(e) => setPrice(Number(e.target.value))}
                             className="border p-1 rounded mb-1 w-full"
                         />
                         <input

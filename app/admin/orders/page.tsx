@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { Order } from "../../types/models";
 
 const STATUS_OPTIONS = [
     "pending",
@@ -12,7 +13,7 @@ const STATUS_OPTIONS = [
 ];
 
 export default function AdminOrders() {
-    const [orders, setOrders] = useState<any[]>([]);
+    const [orders, setOrders] = useState<Order[]>([]);
     const [loading, setLoading] = useState(true);
     const router = useRouter();
 
