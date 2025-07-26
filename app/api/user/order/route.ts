@@ -56,7 +56,7 @@ export async function POST(req: NextRequest) {
             message: "Order placed",
             estimatedReadyTime: order.estimatedReadyTime,
         });
-    } catch (err: any) {
+    } catch (err) {
         console.error("Order creation error:", err);
         return NextResponse.json(
             { message: "Internal Server Error" },
