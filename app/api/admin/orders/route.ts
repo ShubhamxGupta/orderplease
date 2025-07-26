@@ -32,3 +32,22 @@ export async function PATCH(req: NextRequest) {
     });
     return NextResponse.json({ order });
 }
+
+export async function PUT(req: NextRequest) {
+    const { orderId, status } = await req.json();
+    if (!orderId || !status) {
+        return NextResponse.json(
+            { message: "Missing orderId or status" },
+            { status: 400 }
+        );
+    }
+    const order = await prisma.order.update({
+        where: { id: orderId },
+        data: { status },
+        include: {
+            user: true,
+            orderItems: { include: { foodItem: true } },
+        },
+    });
+    return NextResponse.json({ order });
+}
