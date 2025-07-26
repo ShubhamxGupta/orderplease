@@ -120,7 +120,7 @@ export default function UserProfile() {
                         <Button
                             variant="ghost"
                             onClick={() => router.push("/user/dashboard")}
-                            className="text-gray-600 hover:text-gray-900">
+                            className="text-gray-600 hover:text-gray-900 cursor-pointer">
                             <ArrowLeft className="w-4 h-4 mr-2" />
                             Back to Dashboard
                         </Button>
@@ -345,7 +345,7 @@ export default function UserProfile() {
 
                                     <Button
                                         type="submit"
-                                        className="w-full bg-blue-600 hover:bg-blue-700 py-3"
+                                        className="w-full bg-blue-600 hover:bg-blue-700 py-3 cursor-pointer"
                                         disabled={updating}>
                                         {updating ? (
                                             <>
@@ -355,7 +355,7 @@ export default function UserProfile() {
                                         ) : (
                                             <>
                                                 <Lock className="w-4 h-4 mr-2" />
-                                                Update Password
+                                                Change Password
                                             </>
                                         )}
                                     </Button>

@@ -96,7 +96,7 @@ export default function UserDashboard() {
                             variant="outline"
                             size="sm"
                             onClick={handleLogout}
-                            className="text-red-600 border-red-200 hover:bg-red-50 bg-transparent">
+                            className="text-red-600 border-red-200 hover:bg-red-50 bg-transparent cursor-pointer">
                             <LogOut className="w-4 h-4 mr-2" />
                             Logout
                         </Button>
@@ -171,7 +171,7 @@ export default function UserDashboard() {
                             </CardDescription>
                         </CardHeader>
                         <CardContent>
-                            <Button className="w-full bg-emerald-600 hover:bg-emerald-700">
+                            <Button className="w-full bg-emerald-600 hover:bg-emerald-700 cursor-pointer">
                                 Start Ordering
                             </Button>
                         </CardContent>
@@ -194,7 +194,7 @@ export default function UserDashboard() {
                         <CardContent>
                             <Button
                                 variant="outline"
-                                className="w-full border-purple-200 text-purple-600 hover:bg-purple-50 bg-transparent">
+                                className="w-full border-purple-200 text-purple-600 hover:bg-purple-50 bg-transparent cursor-pointer">
                                 View History
                             </Button>
                         </CardContent>
@@ -216,7 +216,7 @@ export default function UserDashboard() {
                         <Button
                             variant="outline"
                             onClick={() => router.push("/user/profile")}
-                            className="border-gray-200 text-gray-600 hover:bg-gray-50">
+                            className="border-gray-200 text-gray-600 hover:bg-gray-50 cursor-pointer">
                             <User className="w-4 h-4 mr-2" />
                             Edit Profile
                         </Button>

@@ -24,6 +24,8 @@ import {
     Clock,
     CheckCircle,
     AlertCircle,
+    Wallet,
+    RefreshCw,
 } from "lucide-react";
 import useSWR from "swr";
 
@@ -51,7 +53,22 @@ export default function UserOrder() {
     const [message, setMessage] = useState("");
     const [error, setError] = useState("");
     const [submitting, setSubmitting] = useState(false);
+    const [userCredits, setUserCredits] = useState(0);
+    const [minTime, setMinTime] = useState("");
+    const [maxTime, setMaxTime] = useState("");
     const router = useRouter();
+
+    // Fetch user credits
+    const { data: creditsData, mutate: mutateCredits } = useSWR(
+        userId ? `/api/user/credits?userId=${userId}` : null,
+        fetcher
+    );
+
+    useEffect(() => {
+        if (creditsData) {
+            setUserCredits(creditsData.credits);
+        }
+    }, [creditsData]);
 
     useEffect(() => {
         fetch("/api/auth/session")
@@ -65,6 +82,17 @@ export default function UserOrder() {
             })
             .catch(() => router.push("/user/login"));
     }, [router]);
+
+    useEffect(() => {
+        // Set min and max time for arrival (now to now+30min)
+        const now = new Date();
+        const pad = (n: number) => n.toString().padStart(2, "0");
+        const min = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
+        const maxDate = new Date(now.getTime() + 30 * 60000);
+        const max = `${pad(maxDate.getHours())}:${pad(maxDate.getMinutes())}`;
+        setMinTime(min);
+        setMaxTime(max);
+    }, []);
 
     const handleQuantity = (id: string, value: number) => {
         setQuantities((q) => ({ ...q, [id]: Math.max(0, value) }));
@@ -102,12 +130,40 @@ export default function UserOrder() {
             setSubmitting(false);
             return;
         }
+        // Validate arrival time is within next 30 minutes and after now
+        const now = new Date();
+        const [h, m] = arrivalTime.split(":").map(Number);
+        const arrival = new Date(now);
+        arrival.setHours(h, m, 0, 0);
+        if (arrival <= now) {
+            setError("Arrival time must be after the current time.");
+            setSubmitting(false);
+            return;
+        }
+        if (arrival.getTime() - now.getTime() > 30 * 60000) {
+            setError("Arrival time must be within the next 30 minutes.");
+            setSubmitting(false);
+            return;
+        }
+
+        const totalAmount = getTotalAmount();
+        if (totalAmount > userCredits) {
+            setError(
+                `Insufficient credits. You have ${userCredits} credits, but need ${totalAmount} credits for this order.`
+            );
+            setSubmitting(false);
+            return;
+        }
 
         try {
             const res = await fetch("/api/user/order", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ userId, items, arrivalTime }),
+                body: JSON.stringify({
+                    userId,
+                    items,
+                    arrivalTime: arrival.toISOString(),
+                }),
             });
 
             const data = await res.json();
@@ -115,6 +171,8 @@ export default function UserOrder() {
                 setMessage(data.message);
                 setQuantities({});
                 setArrivalTime("");
+                // Refresh credits after successful order
+                mutateCredits();
             } else {
                 setError(data.message || "Order failed");
             }
@@ -146,12 +204,15 @@ export default function UserOrder() {
                 </div>
                 <Button
                     onClick={() => mutate()}
-                    className="bg-red-600 hover:bg-red-700 text-white">
+                    className="bg-red-600 hover:bg-red-700 text-white cursor-pointer">
                     Retry
                 </Button>
             </div>
         );
     }
+
+    const totalAmount = getTotalAmount();
+    const hasInsufficientCredits = totalAmount > userCredits;
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
@@ -162,209 +223,251 @@ export default function UserOrder() {
                         <Button
                             variant="ghost"
                             onClick={() => router.push("/user/dashboard")}
-                            className="text-gray-600 hover:text-gray-900">
+                            className="text-gray-600 hover:text-gray-900 cursor-pointer">
                             <ArrowLeft className="w-4 h-4 mr-2" />
                             Back to Dashboard
                         </Button>
-                        <div className="flex items-center space-x-2">
-                            <ShoppingCart className="w-5 h-5 text-blue-600" />
-                            <span className="font-semibold text-gray-900">
-                                Order Food
-                            </span>
+                        <div className="flex items-center space-x-4">
+                            <div className="flex items-center space-x-2">
+                                <ShoppingCart className="w-5 h-5 text-blue-600" />
+                                <span className="font-semibold text-gray-900">
+                                    Order Food
+                                </span>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                                <Wallet className="w-5 h-5 text-green-600" />
+                                <span className="font-semibold text-gray-900">
+                                    Credits: {userCredits}
+                                </span>
+                            </div>
                         </div>
-                        <Button
-                            onClick={() => mutate()}
-                            variant="outline"
-                            className="bg-white">
-                            Refresh
-                        </Button>
                     </div>
                 </div>
             </header>
 
-            <main className="container mx-auto px-4 py-8">
+            {/* Main Content */}
+            <div className="container mx-auto px-4 py-8">
                 <div className="max-w-4xl mx-auto">
-                    <div className="mb-8">
-                        <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                            Place Your Order
-                        </h1>
-                        <p className="text-gray-600">
-                            Select items from our menu and customize your order
-                        </p>
-                    </div>
+                    {/* Credit Balance Alert */}
+                    {hasInsufficientCredits && getTotalItems() > 0 && (
+                        <Alert className="mb-6 border-red-200 bg-red-50">
+                            <AlertCircle className="h-4 w-4 text-red-600" />
+                            <AlertDescription className="text-red-800">
+                                Insufficient credits! You have {userCredits}{" "}
+                                credits but need {totalAmount} credits for this
+                                order.
+                            </AlertDescription>
+                        </Alert>
+                    )}
 
+                    {/* Success/Error Messages */}
                     {message && (
-                        <Alert className="mb-6 bg-green-50 border-green-200">
+                        <Alert className="mb-6 border-green-200 bg-green-50">
                             <CheckCircle className="h-4 w-4 text-green-600" />
                             <AlertDescription className="text-green-800">
                                 {message}
                             </AlertDescription>
                         </Alert>
                     )}
-
                     {error && (
-                        <Alert variant="destructive" className="mb-6">
-                            <AlertCircle className="h-4 w-4" />
-                            <AlertDescription>{error}</AlertDescription>
+                        <Alert className="mb-6 border-red-200 bg-red-50">
+                            <AlertCircle className="h-4 w-4 text-red-600" />
+                            <AlertDescription className="text-red-800">
+                                {error}
+                            </AlertDescription>
                         </Alert>
                     )}
 
-                    <div className="grid lg:grid-cols-3 gap-8">
-                        {/* Menu Items */}
-                        <div className="lg:col-span-2">
-                            <Card className="border-0 shadow-lg">
-                                <CardHeader>
+                    <form onSubmit={handleSubmit} className="space-y-8">
+                        {/* Menu Section */}
+                        <Card className="border-0 shadow-lg">
+                            <CardHeader>
+                                <div className="flex items-center justify-between">
                                     <CardTitle className="text-xl text-gray-900">
                                         Today&apos;s Menu
                                     </CardTitle>
-                                    <CardDescription>
-                                        Fresh food prepared daily
-                                    </CardDescription>
-                                </CardHeader>
-                                <CardContent className="space-y-4">
-                                    {menu.map((item) => (
-                                        <div
-                                            key={item.id}
-                                            className="flex items-center gap-4 p-4 border border-gray-200 rounded-lg hover:border-blue-300 transition-colors">
+                                    <Button
+                                        onClick={() => mutate()}
+                                        variant="outline"
+                                        className="bg-white cursor-pointer">
+                                        <RefreshCw className="w-4 h-4 mr-2" />
+                                        Refresh
+                                    </Button>
+                                </div>
+                                <CardDescription>
+                                    Select items and quantities for your order
+                                </CardDescription>
+                            </CardHeader>
+                            <CardContent className="space-y-4">
+                                {menu.map((item) => (
+                                    <div
+                                        key={item.id}
+                                        className="flex items-center space-x-4 p-4 border border-gray-200 rounded-lg">
+                                        <div className="w-16 h-16 relative rounded-lg overflow-hidden bg-gray-100">
                                             <Image
-                                                src={
-                                                    item.imagePath ||
-                                                    "/placeholder.svg"
-                                                }
+                                                src={item.imagePath}
                                                 alt={item.name}
-                                                width={80}
-                                                height={80}
-                                                className="w-20 h-20 object-cover rounded-lg"
+                                                fill
+                                                className="object-cover"
                                             />
-                                            <div className="flex-1">
-                                                <h3 className="font-semibold text-gray-900">
-                                                    {item.name}
-                                                </h3>
-                                                <p className="text-gray-600 text-sm">
-                                                    {item.description}
-                                                </p>
-                                                <Badge
-                                                    variant="secondary"
-                                                    className="mt-1">
-                                                    ₹{item.price}
-                                                </Badge>
-                                            </div>
-                                            <div className="flex items-center gap-2">
-                                                <Button
-                                                    variant="outline"
-                                                    size="sm"
-                                                    onClick={() =>
-                                                        handleQuantity(
-                                                            item.id,
-                                                            (quantities[
-                                                                item.id
-                                                            ] || 0) - 1
-                                                        )
-                                                    }
-                                                    disabled={
-                                                        !quantities[item.id]
-                                                    }>
-                                                    <Minus className="w-4 h-4" />
-                                                </Button>
-                                                <span className="w-8 text-center font-medium">
-                                                    {quantities[item.id] || 0}
-                                                </span>
-                                                <Button
-                                                    variant="outline"
-                                                    size="sm"
-                                                    onClick={() =>
-                                                        handleQuantity(
-                                                            item.id,
-                                                            (quantities[
-                                                                item.id
-                                                            ] || 0) + 1
-                                                        )
-                                                    }>
-                                                    <Plus className="w-4 h-4" />
-                                                </Button>
-                                            </div>
                                         </div>
-                                    ))}
-                                </CardContent>
-                            </Card>
-                        </div>
+                                        <div className="flex-1">
+                                            <h3 className="font-semibold text-gray-900">
+                                                {item.name}
+                                            </h3>
+                                            <p className="text-sm text-gray-600">
+                                                {item.description}
+                                            </p>
+                                            <p className="text-emerald-600 font-semibold">
+                                                ₹{item.price}
+                                            </p>
+                                        </div>
+                                        <div className="flex items-center space-x-2">
+                                            <Button
+                                                type="button"
+                                                variant="outline"
+                                                size="sm"
+                                                onClick={() =>
+                                                    handleQuantity(
+                                                        item.id,
+                                                        (quantities[item.id] ||
+                                                            0) - 1
+                                                    )
+                                                }
+                                                className="cursor-pointer">
+                                                <Minus className="w-4 h-4" />
+                                            </Button>
+                                            <span className="w-8 text-center font-semibold">
+                                                {quantities[item.id] || 0}
+                                            </span>
+                                            <Button
+                                                type="button"
+                                                variant="outline"
+                                                size="sm"
+                                                onClick={() =>
+                                                    handleQuantity(
+                                                        item.id,
+                                                        (quantities[item.id] ||
+                                                            0) + 1
+                                                    )
+                                                }
+                                                className="cursor-pointer">
+                                                <Plus className="w-4 h-4" />
+                                            </Button>
+                                        </div>
+                                    </div>
+                                ))}
+                            </CardContent>
+                        </Card>
 
                         {/* Order Summary */}
-                        <div className="lg:col-span-1">
-                            <Card className="border-0 shadow-lg sticky top-24">
+                        {getTotalItems() > 0 && (
+                            <Card className="border-0 shadow-lg">
                                 <CardHeader>
                                     <CardTitle className="text-xl text-gray-900">
                                         Order Summary
                                     </CardTitle>
                                 </CardHeader>
-                                <CardContent>
-                                    <form
-                                        onSubmit={handleSubmit}
-                                        className="space-y-4">
-                                        <div className="space-y-2">
-                                            <div className="flex justify-between text-sm">
-                                                <span className="text-gray-600">
-                                                    Total Items:
-                                                </span>
-                                                <span className="font-medium">
-                                                    {getTotalItems()}
-                                                </span>
-                                            </div>
-                                            <div className="flex justify-between text-lg font-semibold">
-                                                <span>Total Amount:</span>
-                                                <span className="text-blue-600">
-                                                    ₹{getTotalAmount()}
-                                                </span>
-                                            </div>
+                                <CardContent className="space-y-4">
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-gray-600">
+                                            Total Items:
+                                        </span>
+                                        <span className="font-semibold">
+                                            {getTotalItems()}
+                                        </span>
+                                    </div>
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-gray-600">
+                                            Total Amount:
+                                        </span>
+                                        <span
+                                            className={`font-semibold ${
+                                                hasInsufficientCredits
+                                                    ? "text-red-600"
+                                                    : "text-emerald-600"
+                                            }`}>
+                                            ₹{totalAmount}
+                                        </span>
+                                    </div>
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-gray-600">
+                                            Your Credits:
+                                        </span>
+                                        <span className="font-semibold text-gray-900">
+                                            {userCredits}
+                                        </span>
+                                    </div>
+                                    {hasInsufficientCredits && (
+                                        <div className="flex justify-between items-center">
+                                            <span className="text-red-600">
+                                                Remaining After Order:
+                                            </span>
+                                            <span className="font-semibold text-red-600">
+                                                ₹{userCredits - totalAmount}{" "}
+                                                (Insufficient)
+                                            </span>
                                         </div>
-
-                                        <div className="space-y-2">
-                                            <Label
-                                                htmlFor="arrivalTime"
-                                                className="text-sm font-medium text-gray-700">
-                                                <Clock className="w-4 h-4 inline mr-1" />
-                                                Preferred Arrival Time
-                                            </Label>
-                                            <Input
-                                                id="arrivalTime"
-                                                type="datetime-local"
-                                                value={arrivalTime}
-                                                onChange={(e) =>
-                                                    setArrivalTime(
-                                                        e.target.value
-                                                    )
-                                                }
-                                                required
-                                                disabled={submitting}
-                                            />
-                                        </div>
-
-                                        <Button
-                                            type="submit"
-                                            className="w-full bg-blue-600 hover:bg-blue-700 py-3"
-                                            disabled={
-                                                submitting ||
-                                                getTotalItems() === 0
-                                            }>
-                                            {submitting ? (
-                                                <>
-                                                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                                                    Placing Order...
-                                                </>
-                                            ) : (
-                                                <>
-                                                    <ShoppingCart className="w-4 h-4 mr-2" />
-                                                    Place Order
-                                                </>
-                                            )}
-                                        </Button>
-                                    </form>
+                                    )}
                                 </CardContent>
                             </Card>
+                        )}
+
+                        {/* Arrival Time Selection */}
+                        <Card className="border-0 shadow-lg">
+                            <CardHeader>
+                                <CardTitle className="text-xl text-gray-900">
+                                    Arrival Time
+                                </CardTitle>
+                                <CardDescription>
+                                    When would you like to pick up your order?
+                                </CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="space-y-4">
+                                    <div>
+                                        <Label htmlFor="arrivalTime">
+                                            Preferred Arrival Time
+                                        </Label>
+                                        <Input
+                                            id="arrivalTime"
+                                            type="time"
+                                            value={arrivalTime}
+                                            min={minTime}
+                                            max={maxTime}
+                                            onChange={(e) =>
+                                                setArrivalTime(e.target.value)
+                                            }
+                                            className="mt-1"
+                                            required
+                                        />
+                                        <div className="text-xs text-gray-500 mt-1">
+                                            Select a time within the next 30
+                                            minutes
+                                        </div>
+                                    </div>
+                                </div>
+                            </CardContent>
+                        </Card>
+
+                        {/* Submit Button */}
+                        <div className="flex justify-end">
+                            <Button
+                                type="submit"
+                                disabled={
+                                    submitting ||
+                                    getTotalItems() === 0 ||
+                                    hasInsufficientCredits
+                                }
+                                className="bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-3 text-lg disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer">
+                                {submitting
+                                    ? "Placing Order..."
+                                    : "Place Order"}
+                            </Button>
                         </div>
-                    </div>
+                    </form>
                 </div>
-            </main>
+            </div>
         </div>
     );
 }

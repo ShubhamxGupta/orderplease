@@ -98,7 +98,10 @@ export default function AdminCredits() {
             const res = await fetch("/api/admin/credits");
             if (res.ok) {
                 const data = await res.json();
+                console.log("Loaded users data:", data);
                 setUsers(data.users || []);
+            } else {
+                console.error("Failed to load users, status:", res.status);
             }
         } catch (error) {
             console.error("Failed to load users:", error);
@@ -126,10 +129,14 @@ export default function AdminCredits() {
             }));
             setFilteredUsers(optimisticUsers);
 
-            const res = await fetch("/api/admin/credits/bulk", {
+            const res = await fetch("/api/admin/credits", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ credits: Number(bulkCredits) }),
+                body: JSON.stringify({
+                    amount: Number(bulkCredits),
+                    adminId: "admin", // You might want to get this from session
+                    reason: "Bulk credit assignment",
+                }),
             });
 
             const data = await res.json();
@@ -173,12 +180,14 @@ export default function AdminCredits() {
             );
             setFilteredUsers(optimisticUsers);
 
-            const res = await fetch("/api/admin/credits/individual", {
-                method: "POST",
+            const res = await fetch("/api/admin/credits", {
+                method: "PATCH",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     userId: selectedUser,
-                    credits: Number(individualCredits),
+                    amount: Number(individualCredits),
+                    adminId: "admin", // You might want to get this from session
+                    reason: "Individual credit update",
                 }),
             });
 
@@ -207,10 +216,26 @@ export default function AdminCredits() {
         setFilteredUsers(optimisticUsers);
 
         try {
-            const res = await fetch("/api/admin/credits/adjust", {
-                method: "POST",
+            // First get current credits for the user
+            const currentUser = users.find((u) => u.userId === userId);
+            if (!currentUser) {
+                loadUsers();
+                return;
+            }
+
+            const newAmount = currentUser.credits + adjustment;
+
+            const res = await fetch("/api/admin/credits", {
+                method: "PATCH",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ userId, adjustment }),
+                body: JSON.stringify({
+                    userId,
+                    amount: newAmount,
+                    adminId: "admin", // You might want to get this from session
+                    reason: `Credit adjustment: ${
+                        adjustment > 0 ? "+" : ""
+                    }${adjustment}`,
+                }),
             });
 
             if (res.ok) {
@@ -286,7 +311,7 @@ export default function AdminCredits() {
                         <Button
                             variant="ghost"
                             onClick={() => router.push("/admin/dashboard")}
-                            className="text-gray-600 hover:text-gray-900 self-start">
+                            className="text-gray-600 hover:text-gray-900 self-start cursor-pointer">
                             <ArrowLeft className="w-4 h-4 mr-2" />
                             Back to Dashboard
                         </Button>
@@ -311,7 +336,7 @@ export default function AdminCredits() {
                                 variant="outline"
                                 size="sm"
                                 onClick={exportToCSV}
-                                className="bg-white">
+                                className="bg-white cursor-pointer">
                                 <Download className="w-4 h-4 mr-2" />
                                 Export CSV
                             </Button>
@@ -409,6 +434,30 @@ export default function AdminCredits() {
                         </Card>
                     </div>
 
+                    {/* Debug Section - Remove this after fixing the issue */}
+                    <Card className="border-0 shadow-lg mb-6">
+                        <CardHeader>
+                            <CardTitle className="text-gray-900">
+                                Debug Info
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="space-y-2 text-sm">
+                                <div>Total users loaded: {users.length}</div>
+                                <div>
+                                    Filtered users: {filteredUsers.length}
+                                </div>
+                                <div>
+                                    Loading state: {loading ? "true" : "false"}
+                                </div>
+                                <div>Raw users data:</div>
+                                <pre className="bg-gray-100 p-2 rounded text-xs overflow-auto max-h-32">
+                                    {JSON.stringify(users.slice(0, 3), null, 2)}
+                                </pre>
+                            </div>
+                        </CardContent>
+                    </Card>
+
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
                         {/* Credit Management Actions */}
                         <div className="lg:col-span-1 space-y-6">
@@ -450,7 +499,7 @@ export default function AdminCredits() {
                                         </div>
                                         <Button
                                             type="submit"
-                                            className="w-full bg-emerald-600 hover:bg-emerald-700 h-12 text-base"
+                                            className="w-full bg-emerald-600 hover:bg-emerald-700 h-12 text-base cursor-pointer"
                                             disabled={updating}>
                                             {updating ? (
                                                 <>
@@ -527,7 +576,7 @@ export default function AdminCredits() {
                                         </div>
                                         <Button
                                             type="submit"
-                                            className="w-full bg-blue-600 hover:bg-blue-700 h-12 text-base"
+                                            className="w-full bg-blue-600 hover:bg-blue-700 h-12 text-base cursor-pointer"
                                             disabled={updating}>
                                             {updating ? (
                                                 <>
@@ -555,7 +604,7 @@ export default function AdminCredits() {
                                             variant="outline"
                                             size="sm"
                                             onClick={loadUsers}
-                                            className="bg-white">
+                                            className="bg-white cursor-pointer">
                                             <RefreshCw className="w-4 h-4 mr-2" />
                                             Refresh
                                         </Button>
@@ -640,25 +689,25 @@ export default function AdminCredits() {
                                                             <Button
                                                                 size="sm"
                                                                 variant="outline"
+                                                                className="cursor-pointer"
                                                                 onClick={() =>
                                                                     adjustUserCredits(
                                                                         user.userId,
                                                                         -10
                                                                     )
-                                                                }
-                                                                className="h-10 w-10 p-0">
+                                                                }>
                                                                 <Minus className="w-4 h-4" />
                                                             </Button>
                                                             <Button
                                                                 size="sm"
                                                                 variant="outline"
+                                                                className="cursor-pointer"
                                                                 onClick={() =>
                                                                     adjustUserCredits(
                                                                         user.userId,
                                                                         10
                                                                     )
-                                                                }
-                                                                className="h-10 w-10 p-0">
+                                                                }>
                                                                 <Plus className="w-4 h-4" />
                                                             </Button>
                                                         </div>

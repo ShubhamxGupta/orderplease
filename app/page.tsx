@@ -1,4 +1,5 @@
-import Link from "next/link";
+"use client";
+
 import { Button } from "@/components/ui/button";
 import {
     Card,
@@ -9,8 +10,10 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Users, ShoppingCart, CreditCard, Clock } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
+    const router = useRouter();
     return (
         <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-blue-50 to-indigo-100">
             {/* Header */}
@@ -62,11 +65,12 @@ export default function Home() {
                                 </CardDescription>
                             </CardHeader>
                             <CardContent>
-                                <Link href="/user/login">
-                                    <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 text-lg font-semibold">
-                                        Student Login
-                                    </Button>
-                                </Link>
+                                <Button
+                                    size="lg"
+                                    onClick={() => router.push("/user/login")}
+                                    className="bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-3 text-lg cursor-pointer">
+                                    Student Login
+                                </Button>
                             </CardContent>
                         </Card>
 
@@ -83,11 +87,13 @@ export default function Home() {
                                 </CardDescription>
                             </CardHeader>
                             <CardContent>
-                                <Link href="/admin/login">
-                                    <Button className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3 text-lg font-semibold">
-                                        Admin Login
-                                    </Button>
-                                </Link>
+                                <Button
+                                    variant="outline"
+                                    size="lg"
+                                    onClick={() => router.push("/admin/login")}
+                                    className="border-emerald-600 text-emerald-600 hover:bg-emerald-50 dark:border-emerald-400 dark:text-emerald-400 dark:hover:bg-emerald-900/20 px-8 py-3 text-lg cursor-pointer">
+                                    Admin Login
+                                </Button>
                             </CardContent>
                         </Card>
                     </div>

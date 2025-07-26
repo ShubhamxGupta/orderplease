@@ -48,6 +48,7 @@ interface Order {
     status: string;
     arrivalTime: string;
     estimatedReadyTime: string;
+    completedAt?: string;
     totalAmount: number;
     createdAt: string;
     orderItems: OrderItem[];
@@ -230,7 +231,7 @@ export default function AdminOrders() {
                         <Button
                             variant="ghost"
                             onClick={() => router.push("/admin/dashboard")}
-                            className="text-gray-600 hover:text-gray-900 self-start">
+                            className="text-gray-600 hover:text-gray-900 cursor-pointer">
                             <ArrowLeft className="w-4 h-4 mr-2" />
                             Back to Dashboard
                         </Button>
@@ -254,7 +255,7 @@ export default function AdminOrders() {
                             <Button
                                 variant="outline"
                                 onClick={exportToCSV}
-                                className="bg-white">
+                                className="bg-white cursor-pointer">
                                 <Download className="w-4 h-4 mr-2" />
                                 Export CSV
                             </Button>
@@ -275,7 +276,7 @@ export default function AdminOrders() {
                                 <Button
                                     onClick={loadOrders}
                                     variant="outline"
-                                    className="bg-white">
+                                    className="bg-white cursor-pointer">
                                     <RefreshCw className="w-4 h-4 mr-2" />
                                     Refresh
                                 </Button>
@@ -518,7 +519,7 @@ export default function AdminOrders() {
                                                                 updating ===
                                                                 order.id
                                                             }>
-                                                            <SelectTrigger className="h-12 text-base">
+                                                            <SelectTrigger className="w-32 cursor-pointer">
                                                                 <SelectValue />
                                                             </SelectTrigger>
                                                             <SelectContent>
@@ -585,25 +586,28 @@ export default function AdminOrders() {
                                             )
                                         }
                                         disabled={currentPage === 1}
-                                        className="h-10 px-4">
+                                        className="cursor-pointer">
                                         Prev
                                     </Button>
-                                    {[...Array(totalPages)].map((_, i) => (
-                                        <Button
-                                            key={i + 1}
-                                            size="sm"
-                                            variant={
-                                                currentPage === i + 1
-                                                    ? "default"
-                                                    : "outline"
-                                            }
-                                            onClick={() =>
-                                                setCurrentPage(i + 1)
-                                            }
-                                            className="h-10 w-10">
-                                            {i + 1}
-                                        </Button>
-                                    ))}
+                                    {Array.from(
+                                        { length: totalPages },
+                                        (_, i) => (
+                                            <Button
+                                                key={i + 1}
+                                                size="sm"
+                                                variant={
+                                                    currentPage === i + 1
+                                                        ? "default"
+                                                        : "outline"
+                                                }
+                                                onClick={() =>
+                                                    setCurrentPage(i + 1)
+                                                }
+                                                className="cursor-pointer">
+                                                {i + 1}
+                                            </Button>
+                                        )
+                                    )}
                                     <Button
                                         size="sm"
                                         variant="outline"
@@ -613,7 +617,7 @@ export default function AdminOrders() {
                                             )
                                         }
                                         disabled={currentPage === totalPages}
-                                        className="h-10 px-4">
+                                        className="cursor-pointer">
                                         Next
                                     </Button>
                                 </div>

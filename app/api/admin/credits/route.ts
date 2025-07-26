@@ -7,11 +7,32 @@ export async function GET() {
     const users = await prisma.user.findMany({
         include: {
             credits: true,
-            creditHistory: { orderBy: { createdAt: "desc" } },
+            creditHistory: {
+                orderBy: { createdAt: "desc" },
+                take: 1,
+            },
         },
         orderBy: { name: "asc" },
     });
-    return NextResponse.json({ users });
+
+    // Transform the data to match the frontend expectations
+    const transformedUsers = users.map((user) => {
+        // Ensure user has a credit record
+        const credits = user.credits?.balance || 0;
+        const lastUpdated =
+            user.creditHistory[0]?.createdAt?.toISOString() ||
+            user.createdAt.toISOString();
+
+        return {
+            userId: user.id,
+            credits: credits,
+            lastUpdated: lastUpdated,
+            userName: user.name,
+            userEmail: user.email,
+        };
+    });
+
+    return NextResponse.json({ users: transformedUsers });
 }
 
 export async function PATCH(req: NextRequest) {

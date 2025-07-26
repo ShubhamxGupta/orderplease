@@ -128,15 +128,18 @@ export default function AdminLogin() {
 
                             <Button
                                 type="submit"
-                                className="w-full bg-emerald-600 hover:bg-emerald-700 py-3"
+                                className="w-full bg-emerald-600 hover:bg-emerald-700 py-3 text-lg font-semibold cursor-pointer"
                                 disabled={loading}>
                                 {loading ? (
                                     <>
                                         <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                                        Signing in...
+                                        Signing In...
                                     </>
                                 ) : (
-                                    "Sign In"
+                                    <>
+                                        <Shield className="w-4 h-4 mr-2" />
+                                        Sign In
+                                    </>
                                 )}
                             </Button>
                         </form>

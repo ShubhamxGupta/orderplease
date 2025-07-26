@@ -33,6 +33,7 @@ import {
     DollarSign,
     Package,
     Download,
+    Loader2,
 } from "lucide-react";
 import useSWR from "swr";
 import toast from "react-hot-toast";
@@ -328,7 +329,7 @@ export default function AdminMenu() {
                         <Button
                             variant="ghost"
                             onClick={() => router.push("/admin/dashboard")}
-                            className="text-gray-600 hover:text-gray-900">
+                            className="text-gray-600 hover:text-gray-900 cursor-pointer">
                             <ArrowLeft className="w-4 h-4 mr-2" />
                             Back to Dashboard
                         </Button>
@@ -341,7 +342,7 @@ export default function AdminMenu() {
                         <Button
                             onClick={() => mutate()}
                             variant="outline"
-                            className="bg-white">
+                            className="bg-white cursor-pointer">
                             <RefreshCw className="w-4 h-4 mr-2" />
                             Refresh
                         </Button>
@@ -349,7 +350,7 @@ export default function AdminMenu() {
                             variant="outline"
                             onClick={exportToCSV}
                             aria-label="Export menu data to CSV"
-                            className="bg-white ml-2">
+                            className="bg-white ml-2 cursor-pointer">
                             <Download className="w-4 h-4 mr-2" />
                             Export CSV
                         </Button>
@@ -591,12 +592,12 @@ export default function AdminMenu() {
 
                                         <Button
                                             type="submit"
-                                            className="w-full bg-emerald-600 hover:bg-emerald-700"
+                                            className="w-full bg-emerald-600 hover:bg-emerald-700 cursor-pointer"
                                             disabled={submitting}>
                                             {submitting ? (
                                                 <>
-                                                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                                                    Adding Item...
+                                                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                                    Adding...
                                                 </>
                                             ) : (
                                                 <>
@@ -908,7 +909,7 @@ function EditableMenuItem({
                             <Button
                                 size="sm"
                                 onClick={handleSave}
-                                className="bg-green-600 hover:bg-green-700">
+                                className="bg-green-600 hover:bg-green-700 cursor-pointer">
                                 <Save className="w-4 h-4 mr-1" />
                                 Save
                             </Button>

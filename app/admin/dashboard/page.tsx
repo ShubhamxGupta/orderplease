@@ -75,10 +75,9 @@ export default function AdminDashboard() {
                                 Admin
                             </Badge>
                             <Button
-                                variant="outline"
-                                size="sm"
+                                variant="ghost"
                                 onClick={handleLogout}
-                                className="text-red-600 border-red-200 hover:bg-red-50 bg-transparent">
+                                className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white cursor-pointer">
                                 <LogOut className="w-4 h-4 mr-2" />
                                 Logout
                             </Button>
@@ -167,7 +166,7 @@ export default function AdminDashboard() {
                             </CardDescription>
                         </CardHeader>
                         <CardContent>
-                            <Button className="w-full bg-blue-600 hover:bg-blue-700">
+                            <Button className="w-full bg-blue-600 hover:bg-blue-700 cursor-pointer">
                                 Manage Menu
                             </Button>
                         </CardContent>
@@ -188,7 +187,7 @@ export default function AdminDashboard() {
                             </CardDescription>
                         </CardHeader>
                         <CardContent>
-                            <Button className="w-full bg-emerald-600 hover:bg-emerald-700">
+                            <Button className="w-full bg-emerald-600 hover:bg-emerald-700 cursor-pointer">
                                 View Orders
                             </Button>
                         </CardContent>
@@ -209,7 +208,7 @@ export default function AdminDashboard() {
                             </CardDescription>
                         </CardHeader>
                         <CardContent>
-                            <Button className="w-full bg-purple-600 hover:bg-purple-700">
+                            <Button className="w-full bg-purple-600 hover:bg-purple-700 cursor-pointer">
                                 Manage Credits
                             </Button>
                         </CardContent>

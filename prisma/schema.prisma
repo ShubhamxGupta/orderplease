@@ -52,6 +52,7 @@ model Order {
   status            String
   arrivalTime       DateTime
   estimatedReadyTime DateTime
+  completedAt       DateTime?
   readyNotified     Boolean     @default(false)
   orderItems        OrderItem[]
   createdAt         DateTime    @default(now())

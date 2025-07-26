@@ -128,15 +128,18 @@ export default function UserLogin() {
 
                             <Button
                                 type="submit"
-                                className="w-full bg-blue-600 hover:bg-blue-700 py-3"
+                                className="w-full bg-blue-600 hover:bg-blue-700 py-3 text-lg font-semibold cursor-pointer"
                                 disabled={loading}>
                                 {loading ? (
                                     <>
                                         <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                                        Signing in...
+                                        Signing In...
                                     </>
                                 ) : (
-                                    "Sign In"
+                                    <>
+                                        <User className="w-4 h-4 mr-2" />
+                                        Sign In
+                                    </>
                                 )}
                             </Button>
                         </form>

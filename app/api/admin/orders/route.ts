@@ -22,9 +22,17 @@ export async function PATCH(req: NextRequest) {
             { status: 400 }
         );
     }
+
+    const updateData: any = { status };
+
+    // Set completedAt timestamp when status is changed to "completed"
+    if (status === "completed") {
+        updateData.completedAt = new Date();
+    }
+
     const order = await prisma.order.update({
         where: { id },
-        data: { status },
+        data: updateData,
         include: {
             user: true,
             orderItems: { include: { foodItem: true } },
@@ -41,9 +49,17 @@ export async function PUT(req: NextRequest) {
             { status: 400 }
         );
     }
+
+    const updateData: any = { status };
+
+    // Set completedAt timestamp when status is changed to "completed"
+    if (status === "completed") {
+        updateData.completedAt = new Date();
+    }
+
     const order = await prisma.order.update({
         where: { id: orderId },
-        data: { status },
+        data: updateData,
         include: {
             user: true,
             orderItems: { include: { foodItem: true } },

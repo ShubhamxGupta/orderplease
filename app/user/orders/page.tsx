@@ -41,6 +41,7 @@ interface Order {
     status: string;
     arrivalTime: string;
     estimatedReadyTime: string;
+    completedAt?: string;
     totalAmount: number;
     createdAt: string;
     orderItems: OrderItem[];
@@ -193,7 +194,7 @@ export default function UserOrders() {
                         <Button
                             variant="ghost"
                             onClick={() => router.push("/user/dashboard")}
-                            className="text-gray-600 hover:text-gray-900">
+                            className="text-gray-600 hover:text-gray-900 cursor-pointer">
                             <ArrowLeft className="w-4 h-4 mr-2" />
                             Back to Dashboard
                         </Button>
@@ -206,14 +207,14 @@ export default function UserOrders() {
                         <Button
                             onClick={() => mutate()}
                             variant="outline"
-                            className="bg-white">
+                            className="bg-white cursor-pointer">
                             Refresh
                         </Button>
                         <Button
                             variant="outline"
                             onClick={exportToCSV}
                             aria-label="Export order history to CSV"
-                            className="bg-white ml-2">
+                            className="bg-white ml-2 cursor-pointer">
                             <Download className="w-4 h-4 mr-2" />
                             Export CSV
                         </Button>
@@ -245,7 +246,7 @@ export default function UserOrders() {
                                 </p>
                                 <Button
                                     onClick={() => router.push("/user/order")}
-                                    className="bg-blue-600 hover:bg-blue-700">
+                                    className="bg-blue-600 hover:bg-blue-700 cursor-pointer">
                                     Order Food Now
                                 </Button>
                             </CardContent>
@@ -425,24 +426,43 @@ export default function UserOrders() {
                                                             </div>
                                                             <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
                                                                 <div className="flex items-center">
-                                                                    <CheckCircle className="w-4 h-4 text-green-600 mr-2" />
+                                                                    {order.status ===
+                                                                    "completed" ? (
+                                                                        <CheckCircle className="w-4 h-4 text-green-600 mr-2" />
+                                                                    ) : (
+                                                                        <Clock className="w-4 h-4 text-green-600 mr-2" />
+                                                                    )}
                                                                     <span className="text-sm font-medium text-green-900">
-                                                                        Estimated
-                                                                        Ready
+                                                                        {order.status ===
+                                                                        "completed"
+                                                                            ? "Completed At"
+                                                                            : "Estimated Ready"}
                                                                     </span>
                                                                 </div>
                                                                 <span className="text-sm text-green-800">
-                                                                    {new Date(
-                                                                        order.estimatedReadyTime
-                                                                    ).toLocaleString(
-                                                                        "en-IN",
-                                                                        {
-                                                                            day: "numeric",
-                                                                            month: "short",
-                                                                            hour: "2-digit",
-                                                                            minute: "2-digit",
-                                                                        }
-                                                                    )}
+                                                                    {order.completedAt
+                                                                        ? new Date(
+                                                                              order.completedAt
+                                                                          ).toLocaleString(
+                                                                              "en-IN",
+                                                                              {
+                                                                                  day: "numeric",
+                                                                                  month: "short",
+                                                                                  hour: "2-digit",
+                                                                                  minute: "2-digit",
+                                                                              }
+                                                                          )
+                                                                        : new Date(
+                                                                              order.estimatedReadyTime
+                                                                          ).toLocaleString(
+                                                                              "en-IN",
+                                                                              {
+                                                                                  day: "numeric",
+                                                                                  month: "short",
+                                                                                  hour: "2-digit",
+                                                                                  minute: "2-digit",
+                                                                              }
+                                                                          )}
                                                                 </span>
                                                             </div>
                                                         </div>
@@ -466,26 +486,33 @@ export default function UserOrders() {
                                                 Math.max(1, p - 1)
                                             )
                                         }
-                                        disabled={currentPage === 1}>
+                                        disabled={currentPage === 1}
+                                        className="cursor-pointer">
                                         Prev
                                     </Button>
-                                    {[...Array(totalPages)].map((_, i) => (
-                                        <Button
-                                            key={i + 1}
-                                            size="sm"
-                                            aria-label={`Go to page ${i + 1}`}
-                                            tabIndex={0}
-                                            variant={
-                                                currentPage === i + 1
-                                                    ? "default"
-                                                    : "outline"
-                                            }
-                                            onClick={() =>
-                                                setCurrentPage(i + 1)
-                                            }>
-                                            {i + 1}
-                                        </Button>
-                                    ))}
+                                    {Array.from(
+                                        { length: totalPages },
+                                        (_, i) => (
+                                            <Button
+                                                key={i + 1}
+                                                size="sm"
+                                                aria-label={`Go to page ${
+                                                    i + 1
+                                                }`}
+                                                tabIndex={0}
+                                                variant={
+                                                    currentPage === i + 1
+                                                        ? "default"
+                                                        : "outline"
+                                                }
+                                                onClick={() =>
+                                                    setCurrentPage(i + 1)
+                                                }
+                                                className="cursor-pointer">
+                                                {i + 1}
+                                            </Button>
+                                        )
+                                    )}
                                     <Button
                                         size="sm"
                                         variant="outline"
@@ -496,7 +523,8 @@ export default function UserOrders() {
                                                 Math.min(totalPages, p + 1)
                                             )
                                         }
-                                        disabled={currentPage === totalPages}>
+                                        disabled={currentPage === totalPages}
+                                        className="cursor-pointer">
                                         Next
                                     </Button>
                                 </div>

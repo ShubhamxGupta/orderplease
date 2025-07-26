@@ -151,6 +151,7 @@ exports.Prisma.OrderScalarFieldEnum = {
   status: 'status',
   arrivalTime: 'arrivalTime',
   estimatedReadyTime: 'estimatedReadyTime',
+  completedAt: 'completedAt',
   readyNotified: 'readyNotified',
   createdAt: 'createdAt'
 };
