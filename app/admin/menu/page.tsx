@@ -2,9 +2,10 @@
 import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { FoodItem } from "../../types/models";
+import Image from "next/image";
 
 export default function AdminMenu() {
-    const [adminId, setAdminId] = useState("");
+    const [_adminId, setAdminId] = useState("");
     const [menu, setMenu] = useState<FoodItem[]>([]);
     const [name, setName] = useState("");
     const [price, setPrice] = useState("");
@@ -188,7 +189,7 @@ function EditableMenuItem({
 
     return (
         <div className="border rounded p-4 flex items-center gap-4">
-            <img
+            <Image
                 src={image ? URL.createObjectURL(image) : imagePath}
                 alt={name}
                 className="w-16 h-16 object-cover rounded"
