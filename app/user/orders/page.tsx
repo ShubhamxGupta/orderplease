@@ -1,10 +1,10 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { Order, OrderItem } from "../../types/models";
 
 export default function UserOrders() {
-    const [userId, setUserId] = useState("");
-    const [orders, setOrders] = useState<any[]>([]);
+    const [orders, setOrders] = useState<Order[]>([]);
     const router = useRouter();
 
     useEffect(() => {
@@ -12,7 +12,6 @@ export default function UserOrders() {
             .then((res) => (res.ok ? res.json() : Promise.reject()))
             .then((data) => {
                 if (data.session?.userId) {
-                    setUserId(data.session.userId);
                     fetch(`/api/user/orders?userId=${data.session.userId}`)
                         .then((res) => (res.ok ? res.json() : Promise.reject()))
                         .then((data) => setOrders(data.orders || []))
@@ -62,12 +61,14 @@ export default function UserOrders() {
                                         Items:
                                     </span>
                                     <ul className="list-disc ml-6">
-                                        {order.orderItems.map((item: any) => (
-                                            <li key={item.id}>
-                                                {item.foodItem.name} x{" "}
-                                                {item.quantity}
-                                            </li>
-                                        ))}
+                                        {order.orderItems.map(
+                                            (item: OrderItem) => (
+                                                <li key={item.id}>
+                                                    {item.foodItem.name} x{" "}
+                                                    {item.quantity}
+                                                </li>
+                                            )
+                                        )}
                                     </ul>
                                 </div>
                             </div>

@@ -5,7 +5,6 @@ import { FoodItem } from "../../types/models";
 import Image from "next/image";
 
 export default function AdminMenu() {
-    const [_adminId, setAdminId] = useState("");
     const [menu, setMenu] = useState<FoodItem[]>([]);
     const [name, setName] = useState("");
     const [price, setPrice] = useState("");
@@ -24,9 +23,11 @@ export default function AdminMenu() {
         fetch("/api/auth/session")
             .then((res) => (res.ok ? res.json() : Promise.reject()))
             .then((data) => {
-                if (data.session?.adminId && data.session?.role === "admin")
-                    setAdminId(data.session.adminId);
-                else router.push("/admin/login");
+                if (
+                    !(data.session?.adminId && data.session?.role === "admin")
+                ) {
+                    router.push("/admin/login");
+                }
             })
             .catch(() => router.push("/admin/login"));
         fetch("/api/admin/menu")

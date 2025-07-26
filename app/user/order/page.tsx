@@ -1,10 +1,12 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { FoodItem } from "../../types/models";
+import Image from "next/image";
 
 export default function UserOrder() {
     const [userId, setUserId] = useState("");
-    const [menu, setMenu] = useState<any[]>([]);
+    const [menu, setMenu] = useState<FoodItem[]>([]);
     const [quantities, setQuantities] = useState<{ [id: string]: number }>({});
     const [arrivalTime, setArrivalTime] = useState("");
     const [message, setMessage] = useState("");
@@ -34,7 +36,7 @@ export default function UserOrder() {
         setMessage("");
         setError("");
         const items = Object.entries(quantities)
-            .filter(([_, qty]) => qty > 0)
+            .filter(([, qty]) => qty > 0)
             .map(([foodItemId, quantity]) => ({ foodItemId, quantity }));
         if (!items.length) {
             setError("Select at least one item");
@@ -75,9 +77,11 @@ export default function UserOrder() {
                         <div
                             key={item.id}
                             className="flex items-center gap-4 border-b pb-2">
-                            <img
+                            <Image
                                 src={item.imagePath}
                                 alt={item.name}
+                                width={64}
+                                height={64}
                                 className="w-16 h-16 object-cover rounded"
                             />
                             <div className="flex-1">
