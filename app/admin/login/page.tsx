@@ -15,13 +15,22 @@ import {
     CardTitle,
 } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { ArrowLeft, Shield, Mail, Lock, Loader2 } from "lucide-react";
+import {
+    ArrowLeft,
+    Shield,
+    Mail,
+    Lock,
+    Loader2,
+    Eye,
+    EyeOff,
+} from "lucide-react";
 
 export default function AdminLogin() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
     const router = useRouter();
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -107,16 +116,33 @@ export default function AdminLogin() {
                                     <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                                     <Input
                                         id="password"
-                                        type="password"
+                                        type={
+                                            showPassword ? "text" : "password"
+                                        }
                                         placeholder="Enter your password"
                                         value={password}
                                         onChange={(e) =>
                                             setPassword(e.target.value)
                                         }
-                                        className="pl-10"
+                                        className="pl-10 pr-10"
                                         required
                                         disabled={loading}
                                     />
+                                    <Button
+                                        type="button"
+                                        variant="ghost"
+                                        size="sm"
+                                        onClick={() =>
+                                            setShowPassword(!showPassword)
+                                        }
+                                        className="absolute right-0 top-0 h-full px-3 hover:bg-transparent cursor-pointer"
+                                        disabled={loading}>
+                                        {showPassword ? (
+                                            <EyeOff className="h-4 w-4 text-gray-500" />
+                                        ) : (
+                                            <Eye className="h-4 w-4 text-gray-500" />
+                                        )}
+                                    </Button>
                                 </div>
                             </div>
 

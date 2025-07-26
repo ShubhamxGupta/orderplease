@@ -75,9 +75,10 @@ export default function AdminDashboard() {
                                 Admin
                             </Badge>
                             <Button
-                                variant="ghost"
+                                variant="outline"
+                                size="sm"
                                 onClick={handleLogout}
-                                className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white cursor-pointer">
+                                className="text-red-600 border-red-200 hover:bg-red-50 bg-transparent cursor-pointer">
                                 <LogOut className="w-4 h-4 mr-2" />
                                 Logout
                             </Button>
